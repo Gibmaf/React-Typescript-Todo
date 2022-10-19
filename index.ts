@@ -1,13 +1,10 @@
-import express, {
-  Express,
-  Request,
-  Response,
-} from 'express';
+import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { Task } from './src/tasks/tasks.entity';
+import { taskRouter } from './src/tasks/tasks.router';
 
 const app: Express = express();
 dotenv.config();
@@ -30,10 +27,6 @@ export const AppDataSource = new DataSource({
 
 const port = process.env.PORT;
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Express + Typescript Server');
-});
-
 AppDataSource.initialize()
   .then(() => {
     app.listen(port);
@@ -45,3 +38,5 @@ AppDataSource.initialize()
       err,
     ),
   );
+
+app.use('/', taskRouter);
