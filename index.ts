@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { Task } from './src/tasks/tasks.entity';
 
 const app: Express = express();
 dotenv.config();
@@ -23,6 +24,7 @@ export const AppDataSource = new DataSource({
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DB,
+  entities: [Task],
   synchronize: true,
 });
 
