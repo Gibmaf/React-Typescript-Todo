@@ -2,14 +2,9 @@ import { Request, Response } from 'express';
 import { AppDataSource } from '../../index';
 import { Task } from './tasks.entity';
 import { instanceToPlain } from 'class-transformer';
+import { validationResult } from 'express-validator';
 
 class TasksController {
-  constructor(
-    private taskRepository = AppDataSource.getRepository(
-      Task,
-    ),
-  ) {}
-
   public async getAll(
     req: Request,
     res: Response,
@@ -19,7 +14,9 @@ class TasksController {
 
     // Fetch all tasks using the repository
     try {
-      allTasks = await this.taskRepository.find({
+      allTasks = await AppDataSource.getRepository(
+        Task,
+      ).find({
         order: {
           date: 'ASC',
         },
@@ -34,6 +31,26 @@ class TasksController {
         .json({ error: 'Internal Server Error' })
         .status(500);
     }
+  }
+
+  //Method for the post route
+  public async create(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ errors: errors.array() });
+    }
+
+    //Create a new instance of the Task
+
+    //Add the required properties to the Task object
+
+    //Add the new task to the database
   }
 }
 
