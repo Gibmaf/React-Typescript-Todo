@@ -1,17 +1,19 @@
+import { Request, Response } from 'express';
 import { AppDataSource } from '../../index';
 import { Task } from './tasks.entity';
 import { instanceToPlain } from 'class-transformer';
 
-export class TasksController {
+class TasksController {
   constructor(
     private taskRepository = AppDataSource.getRepository(
       Task,
     ),
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  public async getAll(): Promise<Task[]> {
+  public async getAll(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     // Declare a variable to hold all tasks
     let allTasks: Task[];
 
@@ -26,9 +28,13 @@ export class TasksController {
       // Convert the tasks instance to an array of objects
       allTasks = instanceToPlain(allTasks) as Task[];
 
-      return allTasks;
-    } catch (errors) {
-      console.log(errors);
+      return res.json(allTasks).status(200);
+    } catch (_errors) {
+      return res
+        .json({ error: 'Internal Server Error' })
+        .status(500);
     }
   }
 }
+
+export const taskController = new TasksController();
