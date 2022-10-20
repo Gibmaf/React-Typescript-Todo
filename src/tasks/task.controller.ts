@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../../index';
 import { Task } from './tasks.entity';
-import { instanceToPlain } from 'class-transformer';
+import {
+  instanceToPlain,
+  plainToInstance,
+} from 'class-transformer';
 import { validationResult } from 'express-validator';
+import { UpdateResult } from 'typeorm';
 
 class TasksController {
   public async getAll(
@@ -85,6 +89,49 @@ class TasksController {
         .status(400)
         .json({ errors: errors.array() });
     }
+
+    //Try to find if the tasks exists
+    let task: Task | null;
+
+    try {
+      task = await AppDataSource.getRepository(
+        Task,
+      ).findOne({ where: { id: req.body.id } });
+    } catch (error) {
+      return res
+        .json({ error: 'Internal Server Error' })
+        .status(500);
+    }
+    //Return 400 if task is null
+    if (!task) {
+      return res.status(404).json({
+        error: 'The task with given ID does not exist',
+      });
+    }
+    //Declare a variable for updateTask
+    let updatedTask: UpdateResult;
+    //Update the task
+    try {
+      updatedTask = await AppDataSource.getRepository(
+        Task,
+      ).update(
+        req.body.id,
+        plainToInstance(Task, {
+          status: req.body.status,
+        }),
+      );
+
+      updatedTask = instanceToPlain(
+        updatedTask,
+      ) as UpdateResult;
+
+      return res.json(updatedTask).status(200);
+    } catch (error) {
+      return res
+        .json({ error: 'Internal Server Error' })
+        .status(500);
+    }
+    //Convert the updatedTask instance to an object
   }
 }
 
