@@ -15,7 +15,7 @@ taskRouter.post(
 );
 
 taskRouter.put(
-  '/tasks/:id',
+  '/tasks',
   updateValidator,
   taskController.update,
 );
